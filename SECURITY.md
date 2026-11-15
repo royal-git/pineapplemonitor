@@ -24,6 +24,6 @@ For example:
 - A settings file or canary name that leads to code execution or reading files outside the settings file.
 - A dependency with a known vulnerability that the project's code can reach.
 
-The example API in `canary-example` and the `observability` stack are demos for localhost. Weaknesses that exist only
-in them, such as Grafana allowing anonymous viewing, are out of scope unless they affect `canary-core` or
-`canary-aws`.
+The example API in `pineapplemonitor-example` and the `observability` stack are demos for localhost. Weaknesses that exist only
+in them, such as Grafana allowing anonymous viewing, are out of scope unless they affect `pineapplemonitor-core` or
+`pineapplemonitor-aws`.

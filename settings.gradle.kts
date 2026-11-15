@@ -1,3 +1,3 @@
-rootProject.name = "canary"
+rootProject.name = "pineapplemonitor"
 
-include("canary-core", "canary-aws", "canary-example")
+include("pineapplemonitor-core", "pineapplemonitor-aws", "pineapplemonitor-example")

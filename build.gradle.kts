@@ -7,7 +7,7 @@ plugins {
 subprojects {
     apply(plugin = "java-library")
 
-    group = "dev.canary"
+    group = "io.github.royal-git"
     version = "0.1.0-SNAPSHOT"
 
     repositories {

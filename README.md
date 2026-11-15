@@ -1,4 +1,4 @@
-# Canary
+# pineapplemonitor
 
 Scheduled synthetic tests for production, written in Java. A canary is an annotated class. Its schedule,
 account and parallelism live in a separate settings file. The framework handles everything else: running,
@@ -56,11 +56,11 @@ canaries:
 You need JDK 17 or newer to start Gradle, and JDK 21 for the build.
 
 ```bash
-./gradlew :canary-example:bootRun
+./gradlew :pineapplemonitor-example:bootRun
 ```
 
 The canary starts calling the example API in the same process, and its metrics appear in the log. To change how it
-runs, edit [canary-example/canary.yml](canary-example/canary.yml).
+runs, edit [pineapplemonitor-example/canary.yml](pineapplemonitor-example/canary.yml).
 
 The example API is the only reason the example has a web server. The canary service itself doesn't need one.
 
@@ -79,14 +79,34 @@ Define your own bean to replace any default.
 
 | Part | Interface | Default |
 | --- | --- | --- |
-| Shared lock | `RunLock` | `InMemoryRunLock`, for one instance |
+| Shared lock | `RunLock` | `InMemoryRunLock`, for one instance. See [Running more than one instance](#running-more-than-one-instance) |
 | Settings | `ConfigStore` | `FileConfigStore` at `canary.config-file`, by default `canary.yml` |
 | Credentials | `AccountProvider` | `EnvAccountProvider`, reading `CANARY_ACCOUNT_<REFERENCE>_*` |
 | Metrics | `MetricsSink` | OpenTelemetry if `OTEL_EXPORTER_OTLP_ENDPOINT` is set, otherwise the log |
 
-To run on AWS with no stored secrets, add `canary-aws` and set `canary.aws.allowed-role-prefix`, for example to
+To run on AWS with no stored secrets, add `pineapplemonitor-aws` and set `canary.aws.allowed-role-prefix`, for example to
 `arn:aws:iam::123456789012:role/canary-test-`. The account in the settings file is then the role to assume for each
 execution. Limit the instance role to the same prefix, because that policy is the real security boundary.
+
+## Running more than one instance
+
+One instance is enough for most teams. Add more for redundancy, or when one host can no longer fit all the runs
+in time. Every instance runs the same code and reads the same settings file, and they coordinate through a shared
+`RunLock`:
+
+- Each canary has one lock record, holding a lease and the time the canary is next due.
+- Each round of a canary runs on exactly one instance: whichever takes the lease first. Other instances skip that
+  round, so adding instances doesn't multiply the runs.
+- Different canaries can run on different instances at the same time. More instances means more rounds in
+  parallel, and less waiting when many canaries are due at once.
+- Instances check for due canaries at slightly random times, so they don't all compete for the same lease.
+- The instance holding a lease renews it while the round runs. If that instance dies, the lease expires (60
+  seconds by default). The round is still due in the shared record, so another instance runs it, and the schedule
+  carries on from there.
+
+The default `InMemoryRunLock` keeps its records in memory, so it only works for a single instance. To run several,
+provide a `RunLock` bean backed by storage every instance can reach, such as a database table updated with
+conditional writes. The project doesn't ship one yet.
 
 ## Metrics
 
@@ -110,7 +130,7 @@ docker compose -f observability/compose.yaml up -d
 ```
 
 ```bash
-OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:9090/api/v1/otlp OTEL_METRIC_EXPORT_INTERVAL=10000 ./gradlew :canary-example:bootRun
+OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:9090/api/v1/otlp OTEL_METRIC_EXPORT_INTERVAL=10000 ./gradlew :pineapplemonitor-example:bootRun
 ```
 
 Then open http://localhost:3000. Prometheus takes OTLP directly, so no collector is needed. It runs with
@@ -136,9 +156,9 @@ The file holds account references only. Never put a credential in it.
 
 ## Modules
 
-- `canary-core`: the annotations, runner, orchestrator and defaults.
-- `canary-aws`: optional role assumption through STS.
-- `canary-example`: a runnable service with an example API and two canaries.
+- `pineapplemonitor-core`: the annotations, runner, orchestrator and defaults.
+- `pineapplemonitor-aws`: optional role assumption through STS.
+- `pineapplemonitor-example`: a runnable service with an example API and two canaries.
 - `observability`: a local Prometheus and Grafana for the metrics. Not part of the build.
 
 ## License

@@ -1,7 +1,7 @@
 # A local Prometheus and Grafana for trying the canary metrics. Not a production setup.
 #
 #   docker compose -f observability/compose.yaml up -d
-#   OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:9090/api/v1/otlp ./gradlew :canary-example:bootRun
+#   OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:9090/api/v1/otlp ./gradlew :pineapplemonitor-example:bootRun
 #
 # Then open http://localhost:3000.
 services:
