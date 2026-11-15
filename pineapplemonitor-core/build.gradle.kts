@@ -1,7 +1,7 @@
 dependencies {
     api("org.springframework.boot:spring-boot-starter")
 
-    implementation(platform("io.opentelemetry:opentelemetry-bom:1.67.0"))
+    implementation(platform("io.opentelemetry:opentelemetry-bom:1.68.0"))
     implementation("io.opentelemetry:opentelemetry-sdk")
     implementation("io.opentelemetry:opentelemetry-exporter-otlp")
     implementation("io.opentelemetry:opentelemetry-sdk-extension-autoconfigure")
