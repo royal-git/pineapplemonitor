@@ -1,0 +1,5 @@
+# Metrics arrive over OTLP, so there is nothing to scrape.
+storage:
+  tsdb:
+    # Several instances push to the same series at slightly different times.
+    out_of_order_time_window: 30m

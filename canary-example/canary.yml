@@ -1,0 +1,14 @@
+# How each canary runs. The code in src/main/java says what it tests.
+# The service rereads this file every 30 seconds, so changes need no restart.
+canaries:
+  edit-account:
+    enabled: true
+    account: edit-account-test
+    interval: 30s
+    parallelism: 1
+    step-timeout: 10s
+  status-check:
+    enabled: true
+    account: status-test
+    interval: 10s
+    step-timeout: 5s

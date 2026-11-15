@@ -1,0 +1,6 @@
+apiVersion: 1
+providers:
+  - name: canary
+    type: file
+    options:
+      path: /var/lib/grafana/dashboards
