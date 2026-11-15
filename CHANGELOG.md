@@ -12,6 +12,7 @@ and versions follow [Semantic Versioning](https://semver.org/).
 - Settings in a YAML file apart from the code, reread every 30 seconds. A mistake stops startup and, on a reload,
   keeps the last good settings.
 - Fixed intervals aligned to the epoch, with a lease-based `RunLock` so that only one instance runs each round.
+- `RunLockContract`, published as test fixtures, for testing your own `RunLock`.
 - Credentials from environment variables, or from an assumed AWS role in `pineapplemonitor-aws`.
 - Run, step, skip and custom metrics, exported over OTLP or written to the log.
 - An example service with two canaries, and a local Prometheus and Grafana stack with a dashboard.

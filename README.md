@@ -105,8 +105,31 @@ in time. Every instance runs the same code and reads the same settings file, and
   carries on from there.
 
 The default `InMemoryRunLock` keeps its records in memory, so it only works for a single instance. To run several,
-provide a `RunLock` bean backed by storage every instance can reach, such as a database table updated with
-conditional writes. The project doesn't ship one yet.
+provide a `RunLock` bean backed by storage every instance can reach, such as a DynamoDB or SQL table updated with
+conditional writes. The project doesn't ship one yet. Whatever you build, it must:
+
+- Take the lease in one conditional write that checks both that the canary is due and that no live lease exists.
+- Check that the caller still holds the lease before renewing, completing or releasing it.
+- Keep the lease well above any clock difference between hosts.
+
+`RunLockContract` tests all of this. It runs two simulated hosts against your lock, including a race for the same
+round. Extend it in a test of your own:
+
+```kotlin
+testImplementation(testFixtures("io.github.royal-git:pineapplemonitor-core:<version>"))
+```
+
+```java
+class DynamoDbRunLockTest extends RunLockContract {
+
+    private final String table = "run-lock-test-" + UUID.randomUUID();
+
+    @Override
+    protected RunLock createLock(Clock clock) {
+        return new DynamoDbRunLock(dynamoDb, table, clock);
+    }
+}
+```
 
 ## Metrics
 
